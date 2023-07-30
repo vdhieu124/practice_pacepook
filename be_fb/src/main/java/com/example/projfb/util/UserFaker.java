@@ -2,6 +2,7 @@ package com.example.projfb.util;
 
 import com.example.projfb.models.Post;
 import com.example.projfb.models.User;
+import com.example.projfb.repository.PostRepository;
 import com.example.projfb.repository.UserRepository;
 import com.github.javafaker.Faker;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,15 +11,13 @@ import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 @Component
 public class UserFaker implements CommandLineRunner {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PostRepository postRepository;
     @Override
     public void run(String... args) throws Exception {
         Faker faker = new Faker();
@@ -36,24 +35,22 @@ public class UserFaker implements CommandLineRunner {
             user.setUsername(faker.name().username());
             user.setEmail(faker.internet().emailAddress());
             user.setPassword(faker.internet().password());
+            user.setProfilePicture("https://images.unsplash.com/photo-1688970462384-9bbafab3204d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8fHx8fHx8MTY5MDY4ODE5OQ&ixlib=rb-4.0.3&q=80&w=1080");
             user.setBio(faker.lorem().sentence());
             user.setCreatedAt(createdAt);
             user.setUpdatedAt(createdAt);
-
-            List<Post> posts = new ArrayList<>();
-            for (int j = 0; j < 5; j++) {
-                Post post = new Post();
-                post.setContent(faker.lorem().paragraph());
-                post.setPostImage(faker.internet().image());
-                post.setCreatedAt(createdAt);
-                post.setUpdatedAt(createdAt);
-                post.setUser(user);
-                posts.add(post);
-            }
-
-            user.setPosts(posts);
-
             userRepository.save(user);
+        }
+        for (int j = 0; j < 10; j++) {
+            Post post = new Post();
+            post.setContent(faker.lorem().paragraph());
+            post.setPostImage("https://images.unsplash.com/photo-1688970462384-9bbafab3204d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8fHx8fHx8MTY5MDY4ODE5OQ&ixlib=rb-4.0.3&q=80&w=1080");
+            post.setCreatedAt(createdAt);
+            post.setUpdatedAt(createdAt);
+
+            User user = userRepository.findRandomUser();
+            post.setUser(user);
+            postRepository.save(post);
         }
     }
 }
